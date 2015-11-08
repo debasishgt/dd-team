@@ -8,19 +8,22 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.net.Socket;
+//import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.Queue;
 
 // Custom Imports
+//import dataAccessLayer.PlayerDAO;
 import metadata.Constants;
 import metadata.GameRequestTable;
+//import model.Player;
 import networking.request.GameRequest;
 import networking.response.GameResponse;
-import networking.response.ResponseDisconnected;
 import utility.DataReader;
-import utility.Player;
+
+import java.sql.*;
 
 /**
  * The GameClient class is an extension of the Thread class that represents an
@@ -37,10 +40,12 @@ public class GameClient extends Thread {
 	private OutputStream outputStream; // For use with outgoing responses
 	private DataInputStream dataInputStream; // For use with incoming requests
 	private DataInputStream dataInput;
-	private boolean isPlaying;
+	private Player player;
+	protected boolean isPlaying;
 	private Queue<GameResponse> updates; // Temporarily store responses for
 											// client
-	private Player player;
+	private int gamestate; // keep track of client's gamestate
+	private GameMode game;
 
 	/**
 	 * Initialize the GameClient using the client socket and creating both input
@@ -52,15 +57,19 @@ public class GameClient extends Thread {
 	 *            holds reference to the server instance
 	 * @throws IOException
 	 */
-	public GameClient(Socket clientSocket, GameServer server) throws IOException {
+	public GameClient(Socket clientSocket, GameServer server)
+			throws IOException {
 		mySocket = clientSocket;
 		this.server = server;
 		updates = new LinkedList<GameResponse>();
-
-		inputStream = mySocket.getInputStream();
-		outputStream = mySocket.getOutputStream();
-		dataInputStream = new DataInputStream(inputStream);
-		player = null;
+		
+		if (mySocket != null){
+			inputStream = mySocket.getInputStream();
+			outputStream = mySocket.getOutputStream();
+			dataInputStream = new DataInputStream(inputStream);
+		}
+		gamestate = Constants.GAMESTATE_NOT_LOGGED_IN;
+		player = new Player();
 	}
 
 	/**
@@ -89,12 +98,10 @@ public class GameClient extends Thread {
 					// Separate the remaining package from the data stream
 					byte[] buffer = new byte[requestLength];
 					inputStream.read(buffer, 0, requestLength);
-					dataInput = new DataInputStream(new ByteArrayInputStream(buffer));
+					dataInput = new DataInputStream(new ByteArrayInputStream(
+							buffer));
 					// Extract the request code number
 					requestCode = DataReader.readShort(dataInput);
-
-					// Preventing response to be sent if user not authenticated
-
 					// Determine the type of request
 					GameRequest request = GameRequestTable.get(requestCode);
 					// If the request exists, process like following:
@@ -106,15 +113,15 @@ public class GameClient extends Thread {
 						request.parse();
 						// Interpret the data
 						request.doBusiness();
-						// Retrieve any responses created by the request
-						// object
+						if (Constants.DEBUG && requestCode != Constants.REQ_HEARTBEAT)
+							System.out.println(request);
+						// Retrieve any responses created by the request object
 						for (GameResponse response : request.getResponses()) {
-							// Transform the response into bytes and pass it
-							// into the output stream
-
-							outputStream.write(response.constructResponseInBytes());
-
+							// The client is already logged in. Save responses till next Heartbeat
+							updates.add(response);
 						}
+						if ((gamestate == Constants.GAMESTATE_NOT_LOGGED_IN) || (requestCode == Constants.REQ_HEARTBEAT))
+							flushResponses();
 					}
 				} else {
 					// If there was no activity for the last moments, exit loop
@@ -122,32 +129,18 @@ public class GameClient extends Thread {
 						isPlaying = false;
 					}
 				}
+				Thread.sleep(1);	// reduce cpu load
 			} catch (Exception e) {
 				System.err.println("Request [" + requestCode + "] Error:");
 				System.err.println(e.getMessage());
 				System.err.println("---");
 				e.printStackTrace();
 			}
-
 		}
 
-		System.out.println(new SimpleDateFormat("MM/dd/yyyy HH:mm:ss").format(new Date()));
+		System.out.println(new SimpleDateFormat("MM/dd/yyyy HH:mm:ss")
+				.format(new Date()));
 		System.out.println("The client stops playing.");
-		ResponseDisconnected response = new ResponseDisconnected();
-		response.setUsername(player.getUsername());
-		getServer().addResponseForAllOnlinePlayers(getId(), (GameResponse) response);
-		getServer().removeActivePlayer(player.getID());
-
-		/*
-		 * if (player != null) { try { long seconds =
-		 * (System.currentTimeMillis() - player.getLastSaved()) / 1000;
-		 * player.setPlayTime(player.getPlayTime() + seconds);
-		 * 
-		 * PlayerDAO.updateLogout(player.getID(), player.getPlayTime()); } catch
-		 * (SQLException ex) { System.err.println(ex.getMessage()); }
-		 * 
-		 * GameServer.getInstance().removeActivePlayer(player.getID()); }
-		 */
 
 		// Remove this GameClient from the server
 		server.deletePlayerThreadOutOfActiveThreads(getId());
@@ -200,6 +193,24 @@ public class GameClient extends Thread {
 		updates.clear();
 	}
 
+	/**
+	 * Flush the response queue to the client
+	 * 
+	 * @return
+	 */
+	public void flushResponses() {
+		for (GameResponse response : updates) {
+			// Transform the response into bytes and pass it into the output
+			// stream
+			try {
+				outputStream.write(response.constructResponseInBytes());
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		clearUpdateBuffer();
+	}
+
 	public String getIP() {
 		return mySocket.getInetAddress().getHostAddress();
 	}
@@ -224,4 +235,29 @@ public class GameClient extends Thread {
 
 		return str;
 	}
+
+	public int getGamestate() {
+		return gamestate;
+	}
+
+	public void setGamestate(int gamestate) {
+		this.gamestate = gamestate;
+	}
+
+	public GameMode getGame() {
+		return game;
+	}
+
+	public void setGame(GameMode game) {
+		this.game = game;
+	}
+
+	/** check if this GameClient is real or not
+	 * 
+	 * @return false
+	 */
+	public boolean isRealClient(){
+		return true;
+	}
+	
 }

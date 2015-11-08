@@ -10,6 +10,7 @@ import java.util.List;
 // Custom Imports
 import core.GameClient;
 import networking.response.GameResponse;
+import java.sql.*;
 
 /**
  * The GameRequest class is an abstract class used as a basis for storing
@@ -65,6 +66,7 @@ public abstract class GameRequest {
         return responses;
     }
 
+    
     @Override
     public String toString() {
         String str = "";

@@ -10,38 +10,17 @@ import java.util.Map;
  */
 public class GameServerConf {
 
-	private Map<String, String> confRecords; // Stores server config. variables
+    private Map<String, String> confRecords; // Stores server config. variables
 
-	public GameServerConf() {
-		confRecords = new HashMap<String, String>();
-	}
+    public GameServerConf() {
+        confRecords = new HashMap<String, String>();
+    }
 
-	public void setConfRecords(Map<String, String> confRecords) {
-		this.confRecords = confRecords;
-	}
+    public void setConfRecords(Map<String, String> confRecords) {
+        this.confRecords = confRecords;
+    }
 
-	public int getPortNumber() {
-		return Integer.valueOf(confRecords.get("portNumber"));
-	}
-
-	public String getDatabaseUsername() {
-		return confRecords.get("databaseUsername");
-	}
-
-	public String getDatabaseServername() {
-		return confRecords.get("databaseServername");
-	}
-
-	public String getDatabasePassword() {
-		return confRecords.get("databasePassword");
-	}
-
-	public String getDatabasePortnumber() {
-		return confRecords.get("databasePortnumber");
-	}
-	
-	public String getDatabaseBaseName() {
-		return confRecords.get("databaseBaseName");
-	}
-
+    public int getPortNumber() {
+        return Integer.valueOf(confRecords.get("portNumber"));
+    }
 }

@@ -1,0 +1,15 @@
+/GameResponse.class
+/ResponseFloat.class
+/ResponseInt.class
+/ResponseShort.class
+/ResponseString.class
+/ResponseLogout.class
+/ResponseSelectCharacter.class
+/ResponseCreateAccount.class
+/ResponseMove.class
+/ResponsePlayerLogout.class
+/ResponseChat.class
+/ResponseSpawn.class
+/ResponseLogin.class
+/ResponseCreateCharacter.class
+/ResponseGoToCharacterSelection.class

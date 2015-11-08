@@ -1,32 +1,29 @@
 package networking.request;
 
-// Java Imports
 import java.io.IOException;
 
-import networking.response.GameResponse;
-// Custom Imports
-//import core.GameServer;
-import networking.response.ResponseHeartbeat;
-
 public class RequestHeartbeat extends GameRequest {
+	/**
+	 * Constructor
+	 */
 	public RequestHeartbeat() {
-
+		// TODO Auto-generated constructor stub
+		super();
+	}
 	
+	/**
+	 * Get data from socket
+	 * Expected: nothing
+	 */
+    @Override
+    public void parse() throws IOException {
+    }
 
-	}
-
-	@Override
-	public void parse() throws IOException {
-	}
-
-	@Override
-	public void doBusiness() throws Exception {
-		
-		for (GameResponse reponse : client.getUpdates()) {
-			responses.add(reponse);	
-		}
-		responses.add(new ResponseHeartbeat());
-		client.clearUpdateBuffer();
-
-	}
+    /**
+     * Client requested for updates
+     */
+    @Override
+    public void doBusiness() throws Exception {
+    	client.flushResponses();
+    }
 }

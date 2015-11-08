@@ -1,0 +1,17 @@
+/GameRequest.class
+/RequestFloat.class
+/RequestInt.class
+/RequestShort.class
+/RequestString.class
+/RequestLogout.class
+/RequestSelectCharacter.class
+/RequestCreateAccount.class
+/RequestMove.class
+/RequestChat.class
+/RequestHeartbeat.class
+/RequestLogin.class
+/is$used$GameRequest.class
+/is$used.class
+/is.class
+/RequestCreateCharacter.class
+/RequestGoToCharacterSelection.class

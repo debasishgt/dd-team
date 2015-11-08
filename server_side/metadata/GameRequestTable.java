@@ -21,7 +21,11 @@ public class GameRequestTable {
         requestNames = new HashMap<Short, Class>();
 
         // Populate the hash map using request codes and class names
-        add(Constants.CMSG_MOVE, "RequestMOVE");
+        add(Constants.CMSG_AUTH, "RequestLogin");
+        add(Constants.CMSG_REGISTER, "RequestRegister");
+        add(Constants.CMSG_CREATE_CHARACTER, "RequestCreateCharacter");
+        add(Constants.CMSG_CHAT, "RequestChat");
+        add(Constants.CMSG_MOVE, "RequestMove");
         add(Constants.CMSG_POWER_UP, "RequestPowerUp");
         add(Constants.CMSG_POWER_PICKUP, "RequestPowerPickup");
         add(Constants.CMSG_HEALTH, "RequestHealth");
@@ -34,7 +38,6 @@ public class GameRequestTable {
         add(Constants.CMSG_DISCONNECT, "RequestDisconnect");
         
         add(Constants.REQ_HEARTBEAT, "RequestHeartbeat");
-
     }
 
     /**
