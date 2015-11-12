@@ -2,9 +2,10 @@ create database if not exists DD_DB;
 
 use DD_DB;
 
-drop table if exists vehicle_types;
 drop table if exists players;
 drop table if exists vehicles;
+drop table if exists vehicle_types;
+drop table if exists dd_games;
 
 
 create table vehicle_types(
@@ -22,10 +23,15 @@ create table vehicle_types(
 
 create table vehicles(
 	id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-	model_name varchar(16),
-	vehicle_type INT,
+	type_id INT,
+	vehicle_power INT,
+	vehicle_weight INT,
+	vehicle_armor INT,
+	vehicle_control INT,
+	vehicle_speed INT,
+	vehicle_acceleration INT,
 
-	FOREIGN KEY (vehicle_type) REFERENCES vehicles(id)
+	FOREIGN KEY (type_id) REFERENCES vehicle_types(id)
 );
 
 create table players(
@@ -33,9 +39,17 @@ create table players(
 	username VARCHAR(16),
 	user_password VARCHAR(16),
 	isConnected BOOLEAN,
-	vehicle INT,
+	parts TINYINT,
+	vehicle_id INT,
+	
 
 
-	FOREIGN KEY (vehicle) REFERENCES vehicles(id) 
+	FOREIGN KEY (vehicle_id) REFERENCES vehicles(id) 
+);
+
+create table dd_games(
+	id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	map_name varchar(16),
+	winner_id INT NULL
 );
 
